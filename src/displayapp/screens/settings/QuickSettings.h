@@ -22,6 +22,7 @@ namespace Pinetime {
                       Controllers::DateTime& dateTimeController,
                       Controllers::BrightnessController& brightness,
                       Controllers::MotorController& motorController,
+                      Controllers::InfinitimeService& infinitimeService,
                       Pinetime::Controllers::Settings& settingsController);
 
         ~QuickSettings() override;
@@ -35,6 +36,7 @@ namespace Pinetime {
         Controllers::DateTime& dateTimeController;
         Controllers::BrightnessController& brightness;
         Controllers::MotorController& motorController;
+        Controllers::InfinitimeService& infinitimeService;
         Controllers::Settings& settingsController;
 
         lv_task_t* taskUpdate;
@@ -48,6 +50,7 @@ namespace Pinetime {
         lv_obj_t* btn3;
         lv_obj_t* btn3_lvl;
         lv_obj_t* btn4;
+        lv_obj_t* btn4_lvl;
 
         BatteryIcon batteryIcon;
       };

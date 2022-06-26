@@ -50,6 +50,7 @@ namespace Pinetime {
 
         static constexpr const char* highlight = "\xEE\xA4\x87"; // e907
 
+        static constexpr const char* search = "\xEF\x80\x82"; // f002
       }
     }
   }

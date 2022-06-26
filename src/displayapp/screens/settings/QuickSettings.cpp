@@ -22,12 +22,14 @@ QuickSettings::QuickSettings(Pinetime::Applications::DisplayApp* app,
                              Controllers::DateTime& dateTimeController,
                              Controllers::BrightnessController& brightness,
                              Controllers::MotorController& motorController,
+                             Controllers::InfinitimeService& infinitimeService,
                              Pinetime::Controllers::Settings& settingsController)
   : Screen(app),
     batteryController {batteryController},
     dateTimeController {dateTimeController},
     brightness {brightness},
     motorController {motorController},
+    infinitimeService {infinitimeService},
     settingsController {settingsController} {
 
   // This is the distance (padding) between all objects on this screen.
@@ -92,18 +94,26 @@ QuickSettings::QuickSettings(Pinetime::Applications::DisplayApp* app,
   } else {
     lv_label_set_text_static(btn3_lvl, Symbols::notificationsOff);
   }
-
+  
   btn4 = lv_btn_create(lv_scr_act(), nullptr);
   btn4->user_data = this;
   lv_obj_set_event_cb(btn4, ButtonEventHandler);
+  lv_btn_set_checkable(btn4, true);
   lv_obj_add_style(btn4, LV_BTN_PART_MAIN, &btn_style);
+  lv_obj_set_style_local_bg_color(btn4, LV_BTN_PART_MAIN, LV_STATE_CHECKED, LV_COLOR_MAKE(0x0, 0xb0, 0x0));
   lv_obj_set_size(btn4, buttonWidth, buttonHeight);
   lv_obj_align(btn4, nullptr, LV_ALIGN_IN_BOTTOM_RIGHT, -buttonXOffset, 0);
+  
+  btn4_lvl = lv_label_create(btn4, nullptr);
+  lv_obj_set_style_local_text_font(btn4_lvl, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_sys_48);
 
-  lbl_btn = lv_label_create(btn4, nullptr);
-  lv_obj_set_style_local_text_font(lbl_btn, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_sys_48);
-  lv_label_set_text_static(lbl_btn, Symbols::settings);
-
+  if (infinitimeService.isPhoneFinding()) {
+    lv_obj_add_state(btn4, LV_STATE_CHECKED);
+    lv_label_set_text_static(btn4_lvl, Symbols::search);
+  } else {
+    lv_label_set_text_static(btn4_lvl, Symbols::search);
+  }
+  
   taskUpdate = lv_task_create(lv_update_task, 5000, LV_TASK_PRIO_MID, this);
 
   UpdateScreen();
@@ -119,6 +129,13 @@ QuickSettings::~QuickSettings() {
 void QuickSettings::UpdateScreen() {
   lv_label_set_text(label_time, dateTimeController.FormattedTime().c_str());
   batteryIcon.SetBatteryPercentage(batteryController.PercentRemaining());
+  
+  if (infinitimeService.isPhoneFinding()) {
+    lv_obj_add_state(btn4, LV_STATE_CHECKED);
+    lv_label_set_text_static(btn4_lvl, Symbols::search);
+  } else {
+    lv_label_set_text_static(btn4_lvl, Symbols::search);
+  }
 }
 
 void QuickSettings::OnButtonEvent(lv_obj_t* object, lv_event_t event) {
@@ -145,8 +162,13 @@ void QuickSettings::OnButtonEvent(lv_obj_t* object, lv_event_t event) {
     }
 
   } else if (object == btn4 && event == LV_EVENT_CLICKED) {
-    running = false;
-    settingsController.SetSettingsMenu(0);
-    app->StartApp(Apps::Settings, DisplayApp::FullRefreshDirections::Up);
+    if (infinitimeService.isPhoneFinding()) {
+      infinitimeService.event(Controllers::InfinitimeService::EVENT_PHONE_FIND_STOP);
+      lv_label_set_text_static(btn4_lvl, Symbols::search);
+    } else {
+      infinitimeService.event(Controllers::InfinitimeService::EVENT_PHONE_FIND_START);
+      lv_obj_add_state(btn4, LV_STATE_CHECKED);
+      lv_label_set_text_static(btn4_lvl, Symbols::search);
+    }
   }
 }

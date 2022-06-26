@@ -59,6 +59,10 @@
          {
             "file": "icons_sys_48.ttf",
             "range": "0xe902, 0xe904-0xe907, 0xe90b-0xe90c"
+         },
+         {
+            "file": "FontAwesome5-Solid+Brands+Regular.woff",
+            "range": "0xf002"
          }
       ],
       "bpp": 1,

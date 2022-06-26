@@ -88,6 +88,12 @@ bool Pinetime::Controllers::InfinitimeService::isPhoneFinding() const {
 }
 
 void Pinetime::Controllers::InfinitimeService::event(char event) {
+  if (event == Controllers::InfinitimeService::EVENT_PHONE_FIND_STOP) {
+    m_isPhoneFinding = false;
+  } else if (event == Controllers::InfinitimeService::EVENT_PHONE_FIND_START) {
+    m_isPhoneFinding = true;
+  }
+  
   auto* om = ble_hs_mbuf_from_flat(&event, 1);
 
   uint16_t connectionHandle = m_system.nimble().connHandle();
