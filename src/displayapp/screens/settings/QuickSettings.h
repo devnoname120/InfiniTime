@@ -9,6 +9,8 @@
 #include "components/settings/Settings.h"
 #include "components/battery/BatteryController.h"
 #include <displayapp/screens/BatteryIcon.h>
+#include <displayapp/screens/Screen.h>
+#include <displayapp/screens/ScreenList.h>
 
 namespace Pinetime {
 
@@ -29,15 +31,27 @@ namespace Pinetime {
 
         void OnButtonEvent(lv_obj_t* object, lv_event_t event);
 
+        bool OnTouchEvent(TouchEvents event) override;
+
         void UpdateScreen();
 
       private:
+        //        auto CreateScreenList() const;
+        std::unique_ptr<Screen> CreateScreen1(unsigned int screenNum) const;
+        std::unique_ptr<Screen> CreateScreen2(unsigned int screenNum) const;
+
         Pinetime::Controllers::Battery& batteryController;
         Controllers::DateTime& dateTimeController;
         Controllers::BrightnessController& brightness;
         Controllers::MotorController& motorController;
         Controllers::InfinitimeService& infinitimeService;
         Controllers::Settings& settingsController;
+
+        bool isPhoneFinding;
+
+        // Increment this when more space is needed
+        static constexpr int nScreens = 2;
+        ScreenList<nScreens> screens;
 
         lv_task_t* taskUpdate;
         lv_obj_t* label_time;

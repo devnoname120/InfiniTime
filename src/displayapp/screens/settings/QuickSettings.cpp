@@ -30,11 +30,92 @@ QuickSettings::QuickSettings(Pinetime::Applications::DisplayApp* app,
     brightness {brightness},
     motorController {motorController},
     infinitimeService {infinitimeService},
-    settingsController {settingsController} {
+    settingsController {settingsController},
+    isPhoneFinding {infinitimeService.isPhoneFinding()},
+    screens {app,
+             0,
+             {[this]() -> std::unique_ptr<Screen> {
+                return CreateScreen1();
+              },
+              [this]() -> std::unique_ptr<Screen> {
+                return CreateScreen2();
+              }},
+             Screens::ScreenListModes::UpDown}{
 
+
+//  UpdateScreen();
+}
+
+QuickSettings::~QuickSettings() {
+//  lv_style_reset(&btn_style);
+//  lv_task_del(taskUpdate);
+// lv_obj_clean(...) is already done by ScreenList::~ScreenList()
+//  lv_obj_clean(lv_scr_act());
+//  settingsController.SaveSettings();
+}
+
+//auto QuickSettings::CreateScreenList() const {
+//  std::array<std::function<std::unique_ptr<Screen>()>, nScreens> screens;
+//  for (size_t i = 0; i < screens.size(); i++) {
+//    screens[i] = [this, i]() -> std::unique_ptr<Screen> {
+//      return CreateScreen(i);
+//    };
+//  }
+//  return screens;
+//}
+
+// TODO: support this
+void QuickSettings::UpdateScreen() {
+//  lv_label_set_text(label_time, dateTimeController.FormattedTime().c_str());
+//  batteryIcon.SetBatteryPercentage(batteryController.PercentRemaining());
+//
+//  if (infinitimeService.isPhoneFinding()) {
+//    lv_obj_add_state(btn4, LV_STATE_CHECKED);
+//    lv_label_set_text_static(btn4_lvl, Symbols::search);
+//  } else {
+//    lv_label_set_text_static(btn4_lvl, Symbols::search);
+//  }
+}
+
+void QuickSettings::OnButtonEvent(lv_obj_t* object, lv_event_t event) {
+  if (object == btn2 && event == LV_EVENT_CLICKED) {
+
+    running = false;
+    app->StartApp(Apps::FlashLight, DisplayApp::FullRefreshDirections::Up);
+
+  } else if (object == btn1 && event == LV_EVENT_CLICKED) {
+
+    brightness.Step();
+    lv_label_set_text_static(btn1_lvl, brightness.GetIcon());
+    settingsController.SetBrightness(brightness.Level());
+
+  } else if (object == btn3 && event == LV_EVENT_VALUE_CHANGED) {
+
+    if (lv_obj_get_state(btn3, LV_BTN_PART_MAIN) & LV_STATE_CHECKED) {
+      settingsController.SetNotificationStatus(Controllers::Settings::Notification::ON);
+      motorController.RunForDuration(35);
+      lv_label_set_text_static(btn3_lvl, Symbols::notificationsOn);
+    } else {
+      settingsController.SetNotificationStatus(Controllers::Settings::Notification::OFF);
+      lv_label_set_text_static(btn3_lvl, Symbols::notificationsOff);
+    }
+
+  } else if (object == btn4 && event == LV_EVENT_CLICKED) {
+    if (infinitimeService.isPhoneFinding()) {
+      infinitimeService.event(Controllers::InfinitimeService::EVENT_PHONE_FIND_STOP);
+      lv_label_set_text_static(btn4_lvl, Symbols::search);
+    } else {
+      infinitimeService.event(Controllers::InfinitimeService::EVENT_PHONE_FIND_START);
+      lv_obj_add_state(btn4, LV_STATE_CHECKED);
+      lv_label_set_text_static(btn4_lvl, Symbols::search);
+    }
+  }
+}
+
+std::unique_ptr<Screen> QuickSettings::CreateScreen1(unsigned int screenNum) const {
   // This is the distance (padding) between all objects on this screen.
   static constexpr uint8_t innerDistance = 10;
-
+  
   // Time
   label_time = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_align(label_time, LV_LABEL_ALIGN_CENTER);
@@ -116,59 +197,5 @@ QuickSettings::QuickSettings(Pinetime::Applications::DisplayApp* app,
   
   taskUpdate = lv_task_create(lv_update_task, 5000, LV_TASK_PRIO_MID, this);
 
-  UpdateScreen();
-}
-
-QuickSettings::~QuickSettings() {
-  lv_style_reset(&btn_style);
-  lv_task_del(taskUpdate);
-  lv_obj_clean(lv_scr_act());
-  settingsController.SaveSettings();
-}
-
-void QuickSettings::UpdateScreen() {
-  lv_label_set_text(label_time, dateTimeController.FormattedTime().c_str());
-  batteryIcon.SetBatteryPercentage(batteryController.PercentRemaining());
-  
-  if (infinitimeService.isPhoneFinding()) {
-    lv_obj_add_state(btn4, LV_STATE_CHECKED);
-    lv_label_set_text_static(btn4_lvl, Symbols::search);
-  } else {
-    lv_label_set_text_static(btn4_lvl, Symbols::search);
-  }
-}
-
-void QuickSettings::OnButtonEvent(lv_obj_t* object, lv_event_t event) {
-  if (object == btn2 && event == LV_EVENT_CLICKED) {
-
-    running = false;
-    app->StartApp(Apps::FlashLight, DisplayApp::FullRefreshDirections::Up);
-
-  } else if (object == btn1 && event == LV_EVENT_CLICKED) {
-
-    brightness.Step();
-    lv_label_set_text_static(btn1_lvl, brightness.GetIcon());
-    settingsController.SetBrightness(brightness.Level());
-
-  } else if (object == btn3 && event == LV_EVENT_VALUE_CHANGED) {
-
-    if (lv_obj_get_state(btn3, LV_BTN_PART_MAIN) & LV_STATE_CHECKED) {
-      settingsController.SetNotificationStatus(Controllers::Settings::Notification::ON);
-      motorController.RunForDuration(35);
-      lv_label_set_text_static(btn3_lvl, Symbols::notificationsOn);
-    } else {
-      settingsController.SetNotificationStatus(Controllers::Settings::Notification::OFF);
-      lv_label_set_text_static(btn3_lvl, Symbols::notificationsOff);
-    }
-
-  } else if (object == btn4 && event == LV_EVENT_CLICKED) {
-    if (infinitimeService.isPhoneFinding()) {
-      infinitimeService.event(Controllers::InfinitimeService::EVENT_PHONE_FIND_STOP);
-      lv_label_set_text_static(btn4_lvl, Symbols::search);
-    } else {
-      infinitimeService.event(Controllers::InfinitimeService::EVENT_PHONE_FIND_START);
-      lv_obj_add_state(btn4, LV_STATE_CHECKED);
-      lv_label_set_text_static(btn4_lvl, Symbols::search);
-    }
-  }
+  return std::unique_ptr<Screen>(new Screens::Label(0, 2, app, label));
 }
