@@ -131,7 +131,6 @@ void DisplayApp::InitHw() {
 
 void DisplayApp::Refresh() {
   auto LoadPreviousScreen = [this]() {
-    brightnessController.Set(settingsController.GetBrightness());
     LoadApp(returnToApp, returnDirection);
   };
 
@@ -185,7 +184,7 @@ void DisplayApp::Refresh() {
       case Messages::TimerDone:
         if (currentApp == Apps::Timer) {
           auto* timer = static_cast<Screens::Timer*>(currentScreen.get());
-          timer->SetDone();
+          timer->Reset();
         } else {
           LoadApp(Apps::Timer, DisplayApp::FullRefreshDirections::Down);
         }
@@ -303,6 +302,8 @@ void DisplayApp::ReturnApp(Apps app, DisplayApp::FullRefreshDirections direction
 
 void DisplayApp::LoadApp(Apps app, DisplayApp::FullRefreshDirections direction) {
   touchHandler.CancelTap();
+  brightnessController.Set(settingsController.GetBrightness());
+
   currentScreen.reset(nullptr);
   SetFullRefresh(direction);
 
