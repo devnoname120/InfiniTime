@@ -42,6 +42,7 @@ static void StopAlarmTaskCallback(lv_task_t* task) {
 
 Alarm::Alarm(DisplayApp* app,
              Controllers::AlarmController& alarmController,
+             Controllers::DateTime& dateTimeController,
              Controllers::Settings::ClockType clockType,
              System::SystemTask& systemTask)
   : Screen(app), alarmController {alarmController}, systemTask {systemTask} {
@@ -57,12 +58,25 @@ Alarm::Alarm(DisplayApp* app,
     lv_label_set_align(lblampm, LV_LABEL_ALIGN_CENTER);
     lv_obj_align(lblampm, lv_scr_act(), LV_ALIGN_CENTER, 0, 30);
   }
-  hourCounter.SetValue(alarmController.Hours());
-  hourCounter.SetValueChangedEventCallback(this, ValueChangedHandler);
-
+  
   minuteCounter.Create();
   lv_obj_align(minuteCounter.GetObject(), nullptr, LV_ALIGN_IN_TOP_RIGHT, 0, 0);
-  minuteCounter.SetValue(alarmController.Minutes());
+  
+  // Set alarm to current time if alarm is not set
+  if (alarmController.State() == Controllers::AlarmController::AlarmState::Not_Set) {
+    uint8_t hours = dateTimeController.Hours();
+    uint8_t minutes = dateTimeController.Minutes();
+    
+    hourCounter.SetValue(hours);
+    minuteCounter.SetValue(minutes);
+    
+    alarmController.SetAlarmTime(hours, minutes);
+  } else {
+    hourCounter.SetValue(alarmController.Hours());
+    minuteCounter.SetValue(alarmController.Minutes());
+  }
+  
+  hourCounter.SetValueChangedEventCallback(this, ValueChangedHandler);
   minuteCounter.SetValueChangedEventCallback(this, ValueChangedHandler);
 
   lv_obj_t* colonLabel = lv_label_create(lv_scr_act(), nullptr);

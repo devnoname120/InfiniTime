@@ -30,6 +30,7 @@ namespace Pinetime {
       public:
         Alarm(DisplayApp* app,
               Controllers::AlarmController& alarmController,
+              Controllers::DateTime& dateTimeController,
               Controllers::Settings::ClockType clockType,
               System::SystemTask& systemTask);
         ~Alarm() override;
