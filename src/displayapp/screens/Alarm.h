@@ -31,6 +31,7 @@ namespace Pinetime {
         Alarm(DisplayApp* app,
               Controllers::AlarmController& alarmController,
               Controllers::DateTime& dateTimeController,
+              Controllers::MotorController& motorController,
               Controllers::Settings::ClockType clockType,
               System::SystemTask& systemTask);
         ~Alarm() override;
@@ -43,6 +44,7 @@ namespace Pinetime {
 
       private:
         Controllers::AlarmController& alarmController;
+        Controllers::MotorController& motorController;
         System::SystemTask& systemTask;
 
         lv_obj_t *btnStop, *txtStop, *btnRecur, *txtRecur, *btnInfo, *enableSwitch;

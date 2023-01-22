@@ -43,9 +43,10 @@ static void StopAlarmTaskCallback(lv_task_t* task) {
 Alarm::Alarm(DisplayApp* app,
              Controllers::AlarmController& alarmController,
              Controllers::DateTime& dateTimeController,
+             Controllers::MotorController& motorController,
              Controllers::Settings::ClockType clockType,
              System::SystemTask& systemTask)
-  : Screen(app), alarmController {alarmController}, systemTask {systemTask} {
+  : Screen(app), alarmController {alarmController}, motorController {motorController}, systemTask {systemTask} {
 
   hourCounter.Create();
   lv_obj_align(hourCounter.GetObject(), nullptr, LV_ALIGN_IN_TOP_LEFT, 0, 0);
@@ -58,24 +59,24 @@ Alarm::Alarm(DisplayApp* app,
     lv_label_set_align(lblampm, LV_LABEL_ALIGN_CENTER);
     lv_obj_align(lblampm, lv_scr_act(), LV_ALIGN_CENTER, 0, 30);
   }
-  
+
   minuteCounter.Create();
   lv_obj_align(minuteCounter.GetObject(), nullptr, LV_ALIGN_IN_TOP_RIGHT, 0, 0);
-  
+
   // Set alarm to current time if alarm is not set
   if (alarmController.State() == Controllers::AlarmController::AlarmState::Not_Set) {
     uint8_t hours = dateTimeController.Hours();
     uint8_t minutes = dateTimeController.Minutes();
-    
+
     hourCounter.SetValue(hours);
     minuteCounter.SetValue(minutes);
-    
+
     alarmController.SetAlarmTime(hours, minutes);
   } else {
     hourCounter.SetValue(alarmController.Hours());
     minuteCounter.SetValue(alarmController.Minutes());
   }
-  
+
   hourCounter.SetValueChangedEventCallback(this, ValueChangedHandler);
   minuteCounter.SetValueChangedEventCallback(this, ValueChangedHandler);
 
@@ -144,6 +145,8 @@ Alarm::~Alarm() {
 void Alarm::DisableAlarm() {
   if (alarmController.State() == AlarmController::AlarmState::Set) {
     alarmController.DisableAlarm();
+    motorController.RunForDuration(35);
+
     lv_switch_off(enableSwitch, LV_ANIM_ON);
   }
 }
@@ -167,6 +170,7 @@ void Alarm::OnButtonEvent(lv_obj_t* obj, lv_event_t event) {
         alarmController.ScheduleAlarm();
       } else {
         alarmController.DisableAlarm();
+        motorController.RunForDuration(35);
       }
       return;
     }
