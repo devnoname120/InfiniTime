@@ -388,30 +388,50 @@ void SystemTask::Work() {
           // Remember we'll have to reset the counter next time we're awake
           stepCounterMustBeReset = true;
           break;
-        case Messages::OnNewHour:
+        case Messages::OnNewHour: {
           using Pinetime::Controllers::AlarmController;
-          if (settingsController.GetNotificationStatus() != Controllers::Settings::Notification::Sleep &&
+
+          const uint8_t hours = dateTimeController.Hours();
+          const bool isNight = hours >= 21 || hours <= 9;
+
+          if (!isNight && settingsController.GetNotificationStatus() != Controllers::Settings::Notification::Sleep &&
               settingsController.GetChimeOption() == Controllers::Settings::ChimesOption::Hours &&
               alarmController.State() != AlarmController::AlarmState::Alerting) {
             if (state == SystemTaskState::Sleeping) {
               GoToRunning();
               displayApp.PushMessage(Pinetime::Applications::Display::Messages::Clock);
             }
-            motorController.RunForDuration(35);
+            motorController.RunForDuration(3 * 35);
           }
           break;
-        case Messages::OnNewHalfHour:
+        }
+        case Messages::OnNewHalfHour: {
           using Pinetime::Controllers::AlarmController;
-          if (settingsController.GetNotificationStatus() != Controllers::Settings::Notification::Sleep &&
+
+          const uint8_t hours = dateTimeController.Hours();
+          const uint8_t minutes = dateTimeController.Minutes();
+          const bool isNight = hours >= 21 || hours <= 9;
+
+          if (!isNight && settingsController.GetNotificationStatus() != Controllers::Settings::Notification::Sleep &&
               settingsController.GetChimeOption() == Controllers::Settings::ChimesOption::HalfHours &&
               alarmController.State() != AlarmController::AlarmState::Alerting) {
             if (state == SystemTaskState::Sleeping) {
               GoToRunning();
               displayApp.PushMessage(Pinetime::Applications::Display::Messages::Clock);
             }
-            motorController.RunForDuration(35);
+
+            // Safe margin as I'm not sure that the time is not off-by-1 here. May not be necessary, I didn't bother to test.
+            const bool isHalfHour = minutes >= 5 && minutes <= 55;
+
+            if (isHalfHour) {
+              // Shorter duration
+              motorController.RunForDuration(35);
+            } else {
+              motorController.RunForDuration(3 * 35);
+            }
           }
           break;
+        }
         case Messages::OnChargingEvent:
           batteryController.ReadPowerState();
           motorController.RunForDuration(15);
