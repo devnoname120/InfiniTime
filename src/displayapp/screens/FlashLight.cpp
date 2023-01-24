@@ -19,7 +19,7 @@ FlashLight::FlashLight(Pinetime::Applications::DisplayApp* app,
                        Controllers::BrightnessController& brightnessController)
   : Screen(app), systemTask {systemTask}, brightnessController {brightnessController} {
 
-  brightnessController.Set(Controllers::BrightnessController::Levels::Low);
+  brightnessController.Set(Controllers::BrightnessController::Levels::High);
 
   flashLight = lv_label_create(lv_scr_act(), nullptr);
   lv_obj_set_style_local_text_font(flashLight, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_sys_48);
@@ -89,42 +89,12 @@ void FlashLight::Toggle() {
   isOn = !isOn;
   SetColors();
   if (isOn) {
-    brightnessController.Set(brightnessLevel);
+    brightnessController.Set(Controllers::BrightnessController::Levels::High);
   } else {
     brightnessController.Set(Controllers::BrightnessController::Levels::Low);
   }
 }
 
 bool FlashLight::OnTouchEvent(Pinetime::Applications::TouchEvents event) {
-  using namespace Pinetime::Controllers;
-
-  auto SetState = [this]() {
-    if (isOn) {
-      brightnessController.Set(brightnessLevel);
-    }
-    SetIndicators();
-  };
-
-  if (event == TouchEvents::SwipeLeft) {
-    if (brightnessLevel == BrightnessController::Levels::High) {
-      brightnessLevel = BrightnessController::Levels::Medium;
-      SetState();
-    } else if (brightnessLevel == BrightnessController::Levels::Medium) {
-      brightnessLevel = BrightnessController::Levels::Low;
-      SetState();
-    }
-    return true;
-  }
-  if (event == TouchEvents::SwipeRight) {
-    if (brightnessLevel == BrightnessController::Levels::Low) {
-      brightnessLevel = BrightnessController::Levels::Medium;
-      SetState();
-    } else if (brightnessLevel == BrightnessController::Levels::Medium) {
-      brightnessLevel = BrightnessController::Levels::High;
-      SetState();
-    }
-    return true;
-  }
-
   return false;
 }
