@@ -196,9 +196,13 @@ void DisplayApp::Refresh() {
         //        clockScreen.SetBleConnectionState(bleController.IsConnected() ? Screens::Clock::BleConnectionStates::Connected :
         //        Screens::Clock::BleConnectionStates::NotConnected);
         break;
-      case Messages::NewNotification:
-        LoadNewScreen(Apps::NotificationsPreview, DisplayApp::FullRefreshDirections::Down);
-        break;
+      case Messages::NewNotification: {
+        // Ignore notification previews when alarm app is opened as it breaks the ringing + is annoying when trying to set an alarm
+        if (currentApp != Apps::Alarm) {
+          LoadNewScreen(Apps::NotificationsPreview, DisplayApp::FullRefreshDirections::Down);
+          break;
+        }
+      }
       case Messages::TimerDone:
         if (currentApp == Apps::Timer) {
           auto* timer = static_cast<Screens::Timer*>(currentScreen.get());
@@ -398,9 +402,12 @@ void DisplayApp::LoadScreen(Apps app, DisplayApp::FullRefreshDirections directio
       currentScreen = std::make_unique<Screens::Timer>(this, timerController);
       break;
     case Apps::Alarm:
-      currentScreen =
-        std::make_unique<Screens::Alarm>(this, alarmController, dateTimeController, motorController, settingsController.GetClockType(),
-                                         *systemTask);
+      currentScreen = std::make_unique<Screens::Alarm>(this,
+                                                       alarmController,
+                                                       dateTimeController,
+                                                       motorController,
+                                                       settingsController.GetClockType(),
+                                                       *systemTask);
       break;
 
     // Settings
