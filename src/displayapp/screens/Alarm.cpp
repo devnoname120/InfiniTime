@@ -175,8 +175,8 @@ void Alarm::OnButtonEvent(lv_obj_t* obj, lv_event_t event) {
       return;
     }
     if (obj == btnRecur) {
-      DisableAlarm();
-      ToggleRecurrence();
+      //            DisableAlarm();
+      //      ToggleRecurrence();
     }
   }
 }
@@ -286,29 +286,31 @@ void Alarm::HideInfo() {
 
 void Alarm::SetRecurButtonState() {
   using Pinetime::Controllers::AlarmController;
-  switch (alarmController.Recurrence()) {
-    case AlarmController::RecurType::None:
-      lv_label_set_text_static(txtRecur, "ONCE");
-      break;
-    case AlarmController::RecurType::Daily:
-      lv_label_set_text_static(txtRecur, "DAILY");
-      break;
-    case AlarmController::RecurType::Weekdays:
-      lv_label_set_text_static(txtRecur, "MON-FRI");
-  }
+  //  switch (alarmController.Recurrence()) {
+  //    case AlarmController::RecurType::None:
+  //      lv_label_set_text_static(txtRecur, "ONCE");
+  //      break;
+  //    case AlarmController::RecurType::Daily:
+  //      lv_label_set_text_static(txtRecur, "DAILY");
+  //      break;
+  //    case AlarmController::RecurType::Weekdays:
+  //      lv_label_set_text_static(txtRecur, "MON-FRI");
+  //  }
+  lv_label_set_text_static(txtRecur, "ONCE");
 }
 
 void Alarm::ToggleRecurrence() {
   using Pinetime::Controllers::AlarmController;
-  switch (alarmController.Recurrence()) {
-    case AlarmController::RecurType::None:
-      alarmController.SetRecurrence(AlarmController::RecurType::Daily);
-      break;
-    case AlarmController::RecurType::Daily:
-      alarmController.SetRecurrence(AlarmController::RecurType::Weekdays);
-      break;
-    case AlarmController::RecurType::Weekdays:
-      alarmController.SetRecurrence(AlarmController::RecurType::None);
-  }
+  //  switch (alarmController.Recurrence()) {
+  //    case AlarmController::RecurType::None:
+  //      alarmController.SetRecurrence(AlarmController::RecurType::Daily);
+  //      break;
+  //    case AlarmController::RecurType::Daily:
+  //      alarmController.SetRecurrence(AlarmController::RecurType::Weekdays);
+  //      break;
+  //    case AlarmController::RecurType::Weekdays:
+  //      alarmController.SetRecurrence(AlarmController::RecurType::None);
+  //  }
+  alarmController.SetRecurrence(AlarmController::RecurType::None);
   SetRecurButtonState();
 }

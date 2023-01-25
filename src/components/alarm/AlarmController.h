@@ -55,11 +55,12 @@ namespace Pinetime {
       }
 
       RecurType Recurrence() const {
-        return recurrence;
+        return RecurType::None;
       }
 
       void SetRecurrence(RecurType recurType) {
-        recurrence = recurType;
+        // recurrence = recurType;
+        recurrence = RecurType::None;
       }
 
     private:
