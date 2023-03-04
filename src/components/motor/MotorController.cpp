@@ -67,6 +67,6 @@ void MotorController::StopRinging() {
   nrf_gpio_pin_set(PinMap::Motor);
 }
 
-void MotorController::StopMotor(TimerHandle_t xTimer) {
+void MotorController::StopMotor(TimerHandle_t /*xTimer*/) {
   nrf_gpio_pin_set(PinMap::Motor);
 }

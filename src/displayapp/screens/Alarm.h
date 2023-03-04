@@ -28,12 +28,11 @@ namespace Pinetime {
     namespace Screens {
       class Alarm : public Screen {
       public:
-        Alarm(DisplayApp* app,
-              Controllers::AlarmController& alarmController,
-              Controllers::DateTime& dateTimeController,
-              Controllers::MotorController& motorController,
+        Alarm(Controllers::AlarmController& alarmController,
               Controllers::Settings::ClockType clockType,
-              System::SystemTask& systemTask);
+              System::SystemTask& systemTask,
+              Controllers::MotorController& motorController,
+              Controllers::DateTime& dateTimeController);
         ~Alarm() override;
         void SetAlerting();
         void OnButtonEvent(lv_obj_t* obj, lv_event_t event);
@@ -44,8 +43,9 @@ namespace Pinetime {
 
       private:
         Controllers::AlarmController& alarmController;
-        Controllers::MotorController& motorController;
         System::SystemTask& systemTask;
+        Controllers::MotorController& motorController;
+        Controllers::DateTime& dateTimeController;
 
         lv_obj_t *btnStop, *txtStop, *btnRecur, *txtRecur, *btnInfo, *enableSwitch;
         lv_obj_t* lblampm = nullptr;
