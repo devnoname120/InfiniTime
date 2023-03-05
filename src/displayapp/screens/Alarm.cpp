@@ -146,8 +146,8 @@ Alarm::~Alarm() {
 }
 
 void Alarm::DisableAlarm() {
-  if (alarmController.State() == AlarmController::AlarmState::Set) {
-    alarmController.DisableAlarm();
+  if (alarmController.State() == AlarmController::AlarmState::Set || alarmController.State() == AlarmController::AlarmState::Alerting) {
+    StopAlerting();
     motorController.RunForDuration(35);
 
     lv_switch_off(enableSwitch, LV_ANIM_ON);
