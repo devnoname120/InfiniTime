@@ -93,6 +93,6 @@ void FlashLight::Toggle() {
   }
 }
 
-bool FlashLight::OnTouchEvent(Pinetime::Applications::TouchEvents event) {
+bool FlashLight::OnTouchEvent(Pinetime::Applications::TouchEvents /*event*/) {
   return false;
 }
