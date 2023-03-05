@@ -212,8 +212,8 @@ void DisplayApp::Refresh() {
         // Ignore notification previews when alarm app is opened as it breaks the ringing + is annoying when trying to set an alarm
         if (currentApp != Apps::Alarm) {
           LoadNewScreen(Apps::NotificationsPreview, DisplayApp::FullRefreshDirections::Down);
-          break;
         }
+        break;
       }
       case Messages::TimerDone:
         if (currentApp == Apps::Timer) {
