@@ -64,13 +64,7 @@ Alarm::Alarm(Controllers::AlarmController& alarmController,
 
   // Set alarm to current time if alarm is not set
   if (alarmController.State() == Controllers::AlarmController::AlarmState::Not_Set) {
-    uint8_t hours = dateTimeController.Hours();
-    uint8_t minutes = dateTimeController.Minutes();
-
-    hourCounter.SetValue(hours);
-    minuteCounter.SetValue(minutes);
-
-    alarmController.SetAlarmTime(hours, minutes);
+    ResetAlarmTimeToNow();
   } else {
     hourCounter.SetValue(alarmController.Hours());
     minuteCounter.SetValue(alarmController.Minutes());
@@ -132,6 +126,16 @@ Alarm::Alarm(Controllers::AlarmController& alarmController,
   } else {
     SetSwitchState(LV_ANIM_OFF);
   }
+}
+
+void Alarm::ResetAlarmTimeToNow() {
+  uint8_t const hours = dateTimeController.Hours();
+  uint8_t const minutes = dateTimeController.Minutes();
+
+  hourCounter.SetValue(hours);
+  minuteCounter.SetValue(minutes);
+
+  alarmController.SetAlarmTime(hours, minutes);
 }
 
 Alarm::~Alarm() {

@@ -192,6 +192,13 @@ void DisplayApp::Refresh() {
       case Messages::GoToRunning:
         lcd.Wakeup();
         ApplyBrightness();
+        // Change alarm time to now when waking up from sleep, but only if the alarm is disabled
+        if (currentApp == Apps::Alarm) {
+          auto* alarm = static_cast<Screens::Alarm*>(currentScreen.get());
+          if (alarmController.State() == Controllers::AlarmController::AlarmState::Not_Set) {
+            alarm->ResetAlarmTimeToNow();
+          }
+        }
         state = States::Running;
         break;
       case Messages::UpdateTimeOut:
@@ -417,7 +424,11 @@ void DisplayApp::LoadScreen(Apps app, DisplayApp::FullRefreshDirections directio
       currentScreen = std::make_unique<Screens::Timer>(timerController);
       break;
     case Apps::Alarm:
-      currentScreen = std::make_unique<Screens::Alarm>(alarmController, settingsController.GetClockType(), *systemTask, motorController, dateTimeController);
+      currentScreen = std::make_unique<Screens::Alarm>(alarmController,
+                                                       settingsController.GetClockType(),
+                                                       *systemTask,
+                                                       motorController,
+                                                       dateTimeController);
       break;
 
     // Settings

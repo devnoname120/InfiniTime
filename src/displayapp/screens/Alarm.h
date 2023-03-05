@@ -40,6 +40,7 @@ namespace Pinetime {
         bool OnTouchEvent(TouchEvents event) override;
         void OnValueChanged();
         void StopAlerting();
+        void ResetAlarmTimeToNow();
 
       private:
         Controllers::AlarmController& alarmController;
