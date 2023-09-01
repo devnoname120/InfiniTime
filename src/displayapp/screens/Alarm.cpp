@@ -68,6 +68,8 @@ Alarm::Alarm(Controllers::AlarmController& alarmController,
   } else {
     hourCounter.SetValue(alarmController.Hours());
     minuteCounter.SetValue(alarmController.Minutes());
+
+    UpdateTimerTextColor();
   }
 
   hourCounter.SetValueChangedEventCallback(this, ValueChangedHandler);
@@ -128,14 +130,37 @@ Alarm::Alarm(Controllers::AlarmController& alarmController,
   }
 }
 
+void Alarm::UpdateTimerTextColor() {
+  const int isNow = alarmController.Hours() == dateTimeController.Hours() && alarmController.Minutes() == dateTimeController.Minutes();
+  if (isNow) {
+    lv_obj_set_style_local_text_color(minuteCounter.number, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+    lv_obj_set_style_local_text_color(hourCounter.number, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+    return;
+  }
+
+  const int isInThePast = alarmController.Hours() < dateTimeController.Hours() ||
+                      (alarmController.Hours() == dateTimeController.Hours() && alarmController.Minutes() < dateTimeController.Minutes());
+  if (isInThePast) {
+    lv_obj_set_style_local_text_color(minuteCounter.number, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+    lv_obj_set_style_local_text_color(hourCounter.number, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+    return;
+  } else {
+    // timer is in the future
+    lv_obj_set_style_local_text_color(minuteCounter.number, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_LIME);
+    lv_obj_set_style_local_text_color(hourCounter.number, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_LIME);
+    return;
+  }
+}
+
 void Alarm::ResetAlarmTimeToNow() {
   uint8_t const hours = dateTimeController.Hours();
   uint8_t const minutes = dateTimeController.Minutes();
 
   hourCounter.SetValue(hours);
   minuteCounter.SetValue(minutes);
-
   alarmController.SetAlarmTime(hours, minutes);
+
+  UpdateTimerTextColor();
 }
 
 Alarm::~Alarm() {
@@ -214,7 +239,9 @@ void Alarm::UpdateAlarmTime() {
       lv_label_set_text_static(lblampm, "AM");
     }
   }
+
   alarmController.SetAlarmTime(hourCounter.GetValue(), minuteCounter.GetValue());
+  UpdateTimerTextColor();
 }
 
 void Alarm::SetAlerting() {
